@@ -1,4 +1,5 @@
 .PHONY: help deps clean build dist
+.DEFAULT_GOAL := help
 
 PKG = github.com/scottbrown/bosky
 ARTIFACT = bosky
