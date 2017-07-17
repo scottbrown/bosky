@@ -18,6 +18,7 @@ clean: ## removes all derived files
 	rm -rf $(GOPATH)/dist/bosky
 
 build: deps ## builds a local version of the application
+	$(GO_BIN) fmt
 	$(GO_BIN) build -o $(ARTIFACT) $(PKG)
 
 dist: deps ## builds distributable versions of the app in all OS/ARCH combos
