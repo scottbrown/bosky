@@ -37,3 +37,14 @@ dist: deps ## builds distributable versions of the app in all OS/ARCH combos
 	mkdir -p $(ARTIFACT_DIR)/windows-i386
 	GOOS=windows GOARCH=386 $(GO_BIN) build -o $(ARTIFACT_DIR)/windows-i386/$(ARTIFACT).exe github.com/scottbrown/bosky
 
+release: deps ## Creates releaseable artifacts ready for public download
+ifndef VERSION
+	$(error "Specify a VERSION to continue.")
+endif
+	tar cfz $(ARTIFACT_DIR)/$(ARTIFACT)_$(VERSION)_linux_amd64.tar.gz -C $(ARTIFACT_DIR)/linux-amd64 bosky
+	tar cfz $(ARTIFACT_DIR)/$(ARTIFACT)_$(VERSION)_linux_arm.tar.gz -C $(ARTIFACT_DIR)/linux-arm bosky
+	tar cfz $(ARTIFACT_DIR)/$(ARTIFACT)_$(VERSION)_linux_i386.tar.gz -C $(ARTIFACT_DIR)/linux-i386 bosky
+	tar cfz $(ARTIFACT_DIR)/$(ARTIFACT)_$(VERSION)_darwin_amd64.tar.gz -C $(ARTIFACT_DIR)/darwin-amd64 bosky
+	tar cfz $(ARTIFACT_DIR)/$(ARTIFACT)_$(VERSION)_windows_amd64.tar.gz -C $(ARTIFACT_DIR)/windows-amd64 bosky.exe
+	tar cfz $(ARTIFACT_DIR)/$(ARTIFACT)_$(VERSION)_windows_i386.tar.gz -C $(ARTIFACT_DIR)/windows-i386 bosky.exe
+
