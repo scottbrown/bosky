@@ -6,7 +6,7 @@ GO_BIN = go
 PKG = github.com/scottbrown/bosky
 ARTIFACT = bosky
 
-ARTIFACT_DIR := $(GOPATH)/dist/$(ARTIFACT)
+ARTIFACT_DIR := .build
 
 help:
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
@@ -16,12 +16,14 @@ deps: ## ensure all dependencies are downloaded
 	@mkdir -p $(ARTIFACT_DIR)
 
 clean: ## removes all derived files
-	rm -f bosky
-	rm -rf $(GOPATH)/dist/bosky
+	rm -rf $(ARTIFACT_DIR)
 
 build: deps ## builds a local version of the application
 	$(GO_BIN) fmt
-	$(GO_BIN) build -o $(ARTIFACT) $(PKG)
+	$(GO_BIN) build -o $(ARTIFACT_DIR)/$(ARTIFACT) $(PKG)
+
+test:
+	go test ./...
 
 dist: deps ## builds distributable versions of the app in all OS/ARCH combos
 	mkdir -p $(ARTIFACT_DIR)/linux-amd64
