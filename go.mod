@@ -3,7 +3,7 @@ module github.com/scottbrown/bosky
 go 1.19
 
 require (
-	github.com/aws/aws-sdk-go v1.44.92
+	github.com/aws/aws-sdk-go v1.44.95
 	gopkg.in/urfave/cli.v1 v1.20.0
 )
 
