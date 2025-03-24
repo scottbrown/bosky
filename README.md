@@ -1,99 +1,188 @@
-# Bosky - User Data Event Emitter
+# Bosky - EC2 User Data Event Emitter
 
-Bosky is a way to send events from user data to AWS CloudWatch Events
-which, in turn, can be consumed by any other AWS resources.
+Bosky sends events from EC2 user data scripts to AWS CloudWatch Events, enabling real-time monitoring of startup processes.
 
-## Background
+## Overview
 
-During an EC2 machine's startup sequence,
-[cloud-init](https://cloud-init.io/) runs a special piece
-of code called user-data.  Within user data, many companies often insert
-Bash scripts to configure machines with runtime settings or deploy
-applications.  If user data fails, it can often mean that the system did
-not start correctly and, if it's behind an autoscaling group, that server
-disappears without an administrator being warned that user data failed.
+During EC2 instance startup, [cloud-init](https://cloud-init.io/) executes user data scripts to configure the machine and deploy applications. If these scripts fail, instances may terminate without alerting administrators, especially in autoscaling groups.
 
-Using `bosky` while processing user data means that anyone interested
-in the events within user data can be notified in _near_ real time.
+Bosky solves this by emitting custom events to CloudWatch at critical points in your user data execution, allowing:
+- Real-time monitoring of user data script execution
+- Alerting on failures
+- Tracking of deployment steps
+- Auditing of instance initialization
 
-## Important -- Costs
+## Installation
 
-Using this application will incur costs.  CloudWatch Events is incredibly
-cheap, but there is a cost associated with sending custom events through
-this service, as well as the resources that consume the event.  Please
-be aware of this when using this tool.
+### Binary Installation
 
-## Agent/System Installation
+1. Download the appropriate binary for your architecture from the [Releases page](https://github.com/scottbrown/bosky/releases)
+2. Copy to your instance: `sudo cp bosky /usr/local/bin/`
+3. Make executable: `sudo chmod +x /usr/local/bin/bosky`
 
-The binary is a self-contained, statically linked binary.  Once you copy
-the binary to your system, that is all that it required.
+### Required IAM Permission
 
-### Install the Binary into the System
+EC2 instances using Bosky require the `events:PutEvents` permission:
 
-1. Go to the Releases page
-1. Choose the latest stable version
-1. Choose the binary for your architecture
-1. Copy the binary to your system into `/usr/local/bin`.
-1. Make sure `root` can find this binary in its `PATH`.
-### Add an IAM Policy to Your EC2 Machine
-
-Your EC2 machine's instance profile will require the `events:PutEvents`
-IAM permission.
-
-### Test It Out
-
-And that's it.  Try testing it out.  You should receive an exit code of `0`
-if the notification succeeds.
-
-Since there is nothing on the other end of the event bus to consume the
-event, it will be dropped.  This is the next installation step.
-
-## Consumer Installation
-
-A consumer is required to consume the user data events and do something
-with them.  Consumers are parties that are interested in the user data
-notifications from your servers.
-
-The following installation will consume all user data events.  You can
-filter as much or as little as you want with further rules.
-
-1. Create a CloudWatch Event Rule.
-1. Specify a rule pattern
-  ```
-  {
-    "detailType": [
-      "User Data"
+```json
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": "events:PutEvents",
+            "Resource": "*"
+        }
     ]
-  }
-  ```
-1. Create a target (for testing, use an SNS topic linked to your email address)
+}
+```
 
-Now send a test event and you should receive an email with the details
-of the user data event.
+Add this to your instance profile or role.
 
 ## Usage
 
-We are going to announce to AWS that our system has started correctly
-and finished processing user data successfully.  At the end of the user
-data sequence, add the following command:
+Bosky can send three types of events: success (pass), failure (fail), or informational (info).
+
+### Basic Usage
 
 ```bash
-bosky --success "User data processed successfully"
+# Send success event
+bosky --pass "User data processed successfully"
+
+# Send failure event
+bosky --fail "Failed to download application artifact"
+
+# Send informational event
+bosky --info "Starting application deployment"
+
+# Custom status
+bosky --status "warning" "Disk space below threshold"
 ```
 
-When the system starts and hits this line, an event is sent to CloudWatch
-Events and onto any matching CloudWatch Event rules.
+### Environment Variables
 
-## Testing
+- `BOSKY_INSTANCE_ID`: Override instance ID detection
+- `BOSKY_PROJECT`: Set project name (default: "unknown")
 
-While this tool is intended for use on an EC2 machine, you can run it
-from your home machine.  Make sure that you have your environment
-configured with a working `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY`
-as well your IAM user has as the `events:PutEvents` permission.
+### Command Line Options
+
+```
+Usage:
+  bosky [message] [flags]
+
+Flags:
+  -f, --fail            Emits a failure event
+  -h, --help            Help for bosky
+      --info            Emits an informational event
+      --instance-id     Specifies the EC2 INSTANCE_ID instead of looking it up
+  -p, --pass            Emits a successful event
+      --project string  Names the PROJECT as a source for the event (default "unknown")
+      --status string   Emits an event with a custom STATUS
+  -v, --version         Version for bosky
+```
+
+## CloudWatch Events Setup
+
+### Creating the Rule
+
+1. Open the CloudWatch console
+2. Navigate to Events → Rules
+3. Create a new rule
+4. For the event pattern:
+
+```json
+{
+  "detailType": [
+    "User Data"
+  ]
+}
+```
+
+5. Additional filtering options:
+   - By project: `"source": ["your-project-name"]`
+   - By status: `"detail": {"Status": ["fail"]}`
+
+### Target Configuration
+
+Connect your rule to targets like:
+- SNS topics for email/SMS notifications
+- Lambda functions for custom processing
+- SQS queues for event processing
+- CloudWatch Alarm actions
+
+## Integration Examples
+
+### Basic User Data Success Tracking
+
+```bash
+#!/bin/bash
+
+# Start user data execution
+bosky --info "Starting user data execution"
+
+# Install dependencies
+apt-get update
+if [ $? -eq 0 ]; then
+  bosky --info "System packages updated"
+else
+  bosky --fail "Failed to update system packages"
+  exit 1
+fi
+
+# Deploy application
+./deploy_app.sh
+if [ $? -eq 0 ]; then
+  bosky --pass "Application deployed successfully"
+else
+  bosky --fail "Application deployment failed"
+  exit 1
+fi
+```
+
+### Project-Based Tracking
+
+```bash
+#!/bin/bash
+export BOSKY_PROJECT="webapp-fleet"
+
+bosky --info "Starting webapp deployment"
+# Deployment steps...
+bosky --pass "Webapp successfully deployed"
+```
+
+## Building From Source
+
+Prerequisites:
+- Go 1.24+
+
+```bash
+# Clone the repository
+git clone https://github.com/scottbrown/bosky.git
+cd bosky
+
+# Build
+make build
+
+# Run tests
+make test
+
+# Build for all platforms
+make dist
+
+# Create release artifacts (requires VERSION env var)
+VERSION=1.1.0 make release
+```
+
+## Cost Considerations
+
+CloudWatch Events has associated costs:
+- $1.00 per million custom events
+- Additional costs for targets (SNS, Lambda, etc.)
+
+While costs are minimal for most use cases, be mindful when implementing at scale.
 
 ## License
 
-tl;dr MIT License
+MIT License - See [LICENSE](LICENSE) for details.
 
-See [LICENSE](LICENSE) for more information.
-
+Copyright © Scott Brown
