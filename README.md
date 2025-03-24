@@ -1,4 +1,4 @@
-![Bosky](bosky.png)
+![Bosky](bosky.small.png)
 
 # Bosky - EC2 User Data Event Emitter
 
