@@ -1,3 +1,5 @@
+![Bosky](bosky.png)
+
 # Bosky - EC2 User Data Event Emitter
 
 Bosky sends events from EC2 user data scripts to AWS CloudWatch Events, enabling real-time monitoring of startup processes.
