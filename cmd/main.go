@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/scottbrown/bosky"
+
 	"github.com/spf13/cobra"
 )
 
@@ -26,7 +28,16 @@ func main() {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			message := args[0]
 
-			err := emitEvent(message)
+			emitter := bosky.Emitter{
+				UserDataStatus: userDataStatus,
+				StatusFail:     statusFail,
+				StatusInfo:     statusInfo,
+				StatusPass:     statusPass,
+				InstanceID:     instance_id,
+				Project:        project,
+			}
+
+			err := emitter.EmitEvent(message)
 			if err != nil {
 				fmt.Fprintln(os.Stderr, err)
 				return err
@@ -54,7 +65,7 @@ func main() {
 	}
 
 	// Add author info
-	rootCmd.Version = VERSION
+	rootCmd.Version = bosky.VERSION
 	rootCmd.SetVersionTemplate("bosky version {{.Version}}\nAuthor: Scott Brown\n")
 
 	if err := rootCmd.Execute(); err != nil {

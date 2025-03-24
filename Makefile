@@ -20,7 +20,7 @@ clean: ## removes all derived files
 
 build: deps ## builds a local version of the application
 	$(GO_BIN) fmt
-	$(GO_BIN) build -o $(ARTIFACT_DIR)/$(ARTIFACT) $(PKG)
+	$(GO_BIN) build -o $(ARTIFACT_DIR)/$(ARTIFACT) $(PKG)/cmd
 
 test:
 	go test ./...

@@ -1,4 +1,4 @@
-package main
+package bosky
 
 import (
 	"context"
@@ -16,27 +16,36 @@ const (
 	STATUS_PASS string = "pass"
 )
 
-func chooseStatusMessage() string {
-	if userDataStatus != "" {
-		return userDataStatus
+type Emitter struct {
+	UserDataStatus string
+	StatusFail     bool
+	StatusInfo     bool
+	StatusPass     bool
+	InstanceID     string
+	Project        string
+}
+
+func (e Emitter) chooseStatusMessage() string {
+	if e.UserDataStatus != "" {
+		return e.UserDataStatus
 	}
 
-	if statusFail {
+	if e.StatusFail {
 		return STATUS_FAIL
 	}
 
-	if statusPass {
+	if e.StatusPass {
 		return STATUS_PASS
 	}
 
-	if statusInfo {
+	if e.StatusInfo {
 		return STATUS_INFO
 	}
 
 	return STATUS_INFO
 }
 
-func emitEvent(message string) error {
+func (e Emitter) EmitEvent(message string) error {
 	ctx := context.TODO()
 
 	// Load the AWS SDK configuration
@@ -45,8 +54,8 @@ func emitEvent(message string) error {
 		return err
 	}
 
-	if instance_id == "" {
-		instance_id, err = retrieveInstanceId(cfg)
+	if e.InstanceID == "" {
+		e.InstanceID, err = retrieveInstanceId(cfg)
 		if err != nil {
 			return err
 		}
@@ -55,7 +64,7 @@ func emitEvent(message string) error {
 	// Create CloudWatch Events client
 	client := cloudwatchevents.NewFromConfig(cfg)
 
-	status := chooseStatusMessage()
+	status := e.chooseStatusMessage()
 	detail := fmt.Sprintf("{ \"Status\": \"%s\", \"Message\": \"%s\"}", status, message)
 	detailType := "User Data"
 
@@ -65,8 +74,8 @@ func emitEvent(message string) error {
 			{
 				Detail:     aws.String(detail),
 				DetailType: aws.String(detailType),
-				Resources:  []string{instance_id},
-				Source:     aws.String(project),
+				Resources:  []string{e.InstanceID},
+				Source:     aws.String(e.Project),
 			},
 		},
 	}
