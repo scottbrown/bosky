@@ -1,8 +1,10 @@
 package main
 
 import (
-	"gopkg.in/urfave/cli.v1"
+	"fmt"
 	"os"
+
+	"github.com/spf13/cobra"
 )
 
 var (
@@ -15,63 +17,47 @@ var (
 )
 
 func main() {
-	app := cli.NewApp()
-	app.Name = "bosky"
-	app.Usage = "Allows user data to emit custom CloudWatch Events during processing.  Returns 0 on success, 1 on failure."
-	app.UsageText = "bosky --fail \"Artifact download returned 404\""
-	app.Author = "Scott Brown"
-	app.Action = func(c *cli.Context) error {
-		if c.NArg() < 1 {
-			cli.ShowAppHelp(c)
+	rootCmd := &cobra.Command{
+		Use:     "bosky [message]",
+		Short:   "Allows user data to emit custom CloudWatch Events during processing",
+		Long:    "Allows user data to emit custom CloudWatch Events during processing. Returns 0 on success, 1 on failure.",
+		Example: "bosky --fail \"Artifact download returned 404\"",
+		Args:    cobra.MinimumNArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			message := args[0]
+
+			err := emitEvent(message)
+			if err != nil {
+				fmt.Fprintln(os.Stderr, err)
+				return err
+			}
+
 			return nil
-		}
-
-		message := c.Args().Get(0)
-
-		err := emitEvent(message)
-
-		if err != nil {
-			return cli.NewExitError(err, 1)
-		}
-
-		return nil
-	}
-
-	app.Flags = []cli.Flag{
-		cli.StringFlag{
-			Name:        "instance-id",
-			Usage:       "Specifies the EC2 `INSTANCE_ID` instead of looking it up with the metadata service",
-			Destination: &instance_id,
-			EnvVar:      "BOSKY_INSTANCE_ID",
-		},
-		cli.StringFlag{
-			Name:        "project",
-			Usage:       "Names the `PROJECT` as a source for the event.",
-			Value:       "unknown",
-			Destination: &project,
-			EnvVar:      "BOSKY_PROJECT",
-		},
-		cli.StringFlag{
-			Name:        "status",
-			Usage:       "Emits an event with a custom `STATUS`",
-			Destination: &userDataStatus,
-		},
-		cli.BoolFlag{
-			Name:        "fail, f",
-			Usage:       "Emits a failure event",
-			Destination: &statusFail,
-		},
-		cli.BoolFlag{
-			Name:        "info, i",
-			Usage:       "Emits an informational event",
-			Destination: &statusInfo,
-		},
-		cli.BoolFlag{
-			Name:        "pass, p",
-			Usage:       "Emits a successful event",
-			Destination: &statusPass,
 		},
 	}
 
-	app.Run(os.Args)
+	// Add flags matching the previous CLI options
+	rootCmd.Flags().StringVar(&instance_id, "instance-id", "", "Specifies the EC2 INSTANCE_ID instead of looking it up with the metadata service")
+	rootCmd.Flags().StringVar(&project, "project", "unknown", "Names the PROJECT as a source for the event")
+	rootCmd.Flags().StringVar(&userDataStatus, "status", "", "Emits an event with a custom STATUS")
+	rootCmd.Flags().BoolVarP(&statusFail, "fail", "f", false, "Emits a failure event")
+	rootCmd.Flags().BoolVarP(&statusInfo, "info", "i", false, "Emits an informational event")
+	rootCmd.Flags().BoolVarP(&statusPass, "pass", "p", false, "Emits a successful event")
+
+	// Support environment variables for instance-id and project
+	if os.Getenv("BOSKY_INSTANCE_ID") != "" && instance_id == "" {
+		instance_id = os.Getenv("BOSKY_INSTANCE_ID")
+	}
+
+	if os.Getenv("BOSKY_PROJECT") != "" && project == "unknown" {
+		project = os.Getenv("BOSKY_PROJECT")
+	}
+
+	// Add author info
+	rootCmd.Version = "1.0.0"
+	rootCmd.SetVersionTemplate("bosky version {{.Version}}\nAuthor: Scott Brown\n")
+
+	if err := rootCmd.Execute(); err != nil {
+		os.Exit(1)
+	}
 }

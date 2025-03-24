@@ -1,25 +1,32 @@
 package main
 
 import (
+	"context"
 	"errors"
-	"github.com/aws/aws-sdk-go/aws/ec2metadata"
-	"github.com/aws/aws-sdk-go/aws/session"
+
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/feature/ec2/imds"
 )
 
-func retrieveInstanceId(sess *session.Session) (string, error) {
-	metadata_svc := ec2metadata.New(sess)
+func retrieveInstanceId(cfg aws.Config) (string, error) {
+	client := imds.NewFromConfig(cfg)
 
-	if !metadata_svc.Available() {
-		// are we not on an EC2 machine?
-		// ...or maybe the service is down?
-		return "", errors.New("Cannot lookup instance ID because EC2 metadata service is not available.  Use --instance-id")
+	ctx := context.TODO()
+
+	// Check if IMDS is available
+	_, err := client.GetMetadata(ctx, &imds.GetMetadataInput{
+		Path: "instance-id",
+	})
+
+	if err != nil {
+		return "", errors.New("Cannot lookup instance ID because EC2 metadata service is not available. Use --instance-id")
 	}
 
-	identity_document, err := metadata_svc.GetInstanceIdentityDocument()
-
+	// Get instance identity document
+	resp, err := client.GetInstanceIdentityDocument(ctx, &imds.GetInstanceIdentityDocumentInput{})
 	if err != nil {
 		return "", err
 	}
 
-	return identity_document.InstanceID, nil
+	return resp.InstanceID, nil
 }
