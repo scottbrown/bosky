@@ -20,33 +20,39 @@ clean: ## removes all derived files
 
 build: deps ## builds a local version of the application
 	$(GO_BIN) fmt
-	$(GO_BIN) build -o $(ARTIFACT_DIR)/$(ARTIFACT) $(PKG)/cmd
+	$(eval GIT_HASH := $(shell git rev-parse --short HEAD))
+	$(GO_BIN) build -ldflags "-X $(PKG).VERSION=$(GIT_HASH)" -o $(ARTIFACT_DIR)/$(ARTIFACT) $(PKG)/cmd
 
 test:
 	go test ./...
 
 dist: deps ## builds distributable versions of the app in all OS/ARCH combos
+ifdef VERSION
+	$(eval BUILD_VERSION := $(VERSION))
+else
+	$(eval BUILD_VERSION := $(shell git rev-parse --short HEAD))
+endif
 	mkdir -p $(ARTIFACT_DIR)/linux-amd64
-	GOOS=linux GOARCH=amd64 $(GO_BIN) build -o $(ARTIFACT_DIR)/linux-amd64/$(ARTIFACT) $(PKG)
+	GOOS=linux GOARCH=amd64 $(GO_BIN) build -ldflags "-X $(PKG).VERSION=$(BUILD_VERSION)" -o $(ARTIFACT_DIR)/linux-amd64/$(ARTIFACT) $(PKG)/cmd
 	mkdir -p $(ARTIFACT_DIR)/linux-arm
-	GOOS=linux GOARCH=arm $(GO_BIN) build -o $(ARTIFACT_DIR)/linux-arm/$(ARTIFACT) $(PKG)
+	GOOS=linux GOARCH=arm $(GO_BIN) build -ldflags "-X $(PKG).VERSION=$(BUILD_VERSION)" -o $(ARTIFACT_DIR)/linux-arm/$(ARTIFACT) $(PKG)/cmd
 	mkdir -p $(ARTIFACT_DIR)/linux-i386
-	GOOS=linux GOARCH=386 $(GO_BIN) build -o $(ARTIFACT_DIR)/linux-i386/$(ARTIFACT) $(PKG)
+	GOOS=linux GOARCH=386 $(GO_BIN) build -ldflags "-X $(PKG).VERSION=$(BUILD_VERSION)" -o $(ARTIFACT_DIR)/linux-i386/$(ARTIFACT) $(PKG)/cmd
 	mkdir -p $(ARTIFACT_DIR)/darwin-amd64
-	GOOS=darwin GOARCH=amd64 $(GO_BIN) build -o $(ARTIFACT_DIR)/darwin-amd64/$(ARTIFACT) $(PKG)
+	GOOS=darwin GOARCH=amd64 $(GO_BIN) build -ldflags "-X $(PKG).VERSION=$(BUILD_VERSION)" -o $(ARTIFACT_DIR)/darwin-amd64/$(ARTIFACT) $(PKG)/cmd
 	mkdir -p $(ARTIFACT_DIR)/windows-amd64
-	GOOS=windows GOARCH=amd64 $(GO_BIN) build -o $(ARTIFACT_DIR)/windows-amd64/$(ARTIFACT).exe $(PKG)
+	GOOS=windows GOARCH=amd64 $(GO_BIN) build -ldflags "-X $(PKG).VERSION=$(BUILD_VERSION)" -o $(ARTIFACT_DIR)/windows-amd64/$(ARTIFACT).exe $(PKG)/cmd
 	mkdir -p $(ARTIFACT_DIR)/windows-i386
-	GOOS=windows GOARCH=386 $(GO_BIN) build -o $(ARTIFACT_DIR)/windows-i386/$(ARTIFACT).exe github.com/scottbrown/bosky
+	GOOS=windows GOARCH=386 $(GO_BIN) build -ldflags "-X $(PKG).VERSION=$(BUILD_VERSION)" -o $(ARTIFACT_DIR)/windows-i386/$(ARTIFACT).exe $(PKG)/cmd
 
 release: deps ## Creates releaseable artifacts ready for public download
 ifndef VERSION
 	$(error "Specify a VERSION to continue.")
 endif
+	$(MAKE) dist VERSION=$(VERSION)
 	tar cfz $(ARTIFACT_DIR)/$(ARTIFACT)_$(VERSION)_linux_amd64.tar.gz -C $(ARTIFACT_DIR)/linux-amd64 bosky
 	tar cfz $(ARTIFACT_DIR)/$(ARTIFACT)_$(VERSION)_linux_arm.tar.gz -C $(ARTIFACT_DIR)/linux-arm bosky
 	tar cfz $(ARTIFACT_DIR)/$(ARTIFACT)_$(VERSION)_linux_i386.tar.gz -C $(ARTIFACT_DIR)/linux-i386 bosky
 	tar cfz $(ARTIFACT_DIR)/$(ARTIFACT)_$(VERSION)_darwin_amd64.tar.gz -C $(ARTIFACT_DIR)/darwin-amd64 bosky
 	tar cfz $(ARTIFACT_DIR)/$(ARTIFACT)_$(VERSION)_windows_amd64.tar.gz -C $(ARTIFACT_DIR)/windows-amd64 bosky.exe
 	tar cfz $(ARTIFACT_DIR)/$(ARTIFACT)_$(VERSION)_windows_i386.tar.gz -C $(ARTIFACT_DIR)/windows-i386 bosky.exe
-

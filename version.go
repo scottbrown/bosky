@@ -1,3 +1,4 @@
 package bosky
 
-const VERSION string = "1.0.0"
+// VERSION is set during build via ldflags
+var VERSION string = "dev"
