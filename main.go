@@ -54,7 +54,7 @@ func main() {
 	}
 
 	// Add author info
-	rootCmd.Version = "1.0.0"
+	rootCmd.Version = VERSION
 	rootCmd.SetVersionTemplate("bosky version {{.Version}}\nAuthor: Scott Brown\n")
 
 	if err := rootCmd.Execute(); err != nil {
