@@ -1,11 +1,15 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"os"
 
 	"github.com/scottbrown/bosky"
 
+	"github.com/aws/aws-sdk-go-v2/config"
+	"github.com/aws/aws-sdk-go-v2/feature/ec2/imds"
+	"github.com/aws/aws-sdk-go-v2/service/cloudwatchevents"
 	"github.com/spf13/cobra"
 )
 
@@ -28,6 +32,14 @@ func main() {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			message := args[0]
 
+			ctx := context.TODO()
+
+			// Load the AWS SDK configuration
+			cfg, err := config.LoadDefaultConfig(ctx, config.WithRetryMaxAttempts(3))
+			if err != nil {
+				return err
+			}
+
 			emitter := bosky.Emitter{
 				UserDataStatus: userDataStatus,
 				StatusFail:     statusFail,
@@ -35,9 +47,11 @@ func main() {
 				StatusPass:     statusPass,
 				InstanceID:     instance_id,
 				Project:        project,
+				EBClient:       cloudwatchevents.NewFromConfig(cfg),
+				IMDSClient:     imds.NewFromConfig(cfg),
 			}
 
-			err := emitter.EmitEvent(message)
+			err = emitter.Emit(message)
 			if err != nil {
 				fmt.Fprintln(os.Stderr, err)
 				return err

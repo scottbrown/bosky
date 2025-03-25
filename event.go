@@ -1,19 +1,7 @@
 package bosky
 
 import (
-	"context"
 	"fmt"
-
-	"github.com/aws/aws-sdk-go-v2/aws"
-	"github.com/aws/aws-sdk-go-v2/config"
-	"github.com/aws/aws-sdk-go-v2/service/cloudwatchevents"
-	"github.com/aws/aws-sdk-go-v2/service/cloudwatchevents/types"
-)
-
-const (
-	STATUS_FAIL string = "fail"
-	STATUS_INFO string = "info"
-	STATUS_PASS string = "pass"
 )
 
 type Emitter struct {
@@ -23,6 +11,9 @@ type Emitter struct {
 	StatusPass     bool
 	InstanceID     string
 	Project        string
+
+	EBClient   EventBridgeClient
+	IMDSClient IMDSClient
 }
 
 func (e Emitter) chooseStatusMessage() string {
@@ -45,43 +36,20 @@ func (e Emitter) chooseStatusMessage() string {
 	return STATUS_INFO
 }
 
-func (e Emitter) EmitEvent(message string) error {
-	ctx := context.TODO()
-
-	// Load the AWS SDK configuration
-	cfg, err := config.LoadDefaultConfig(ctx, config.WithRetryMaxAttempts(3))
-	if err != nil {
-		return err
-	}
-
+func (e Emitter) Emit(message string) error {
 	if e.InstanceID == "" {
-		e.InstanceID, err = retrieveInstanceId(cfg)
+		instanceID, err := retrieveInstanceId(e.IMDSClient)
+		e.InstanceID = instanceID
 		if err != nil {
 			return err
 		}
 	}
 
-	// Create CloudWatch Events client
-	client := cloudwatchevents.NewFromConfig(cfg)
-
 	status := e.chooseStatusMessage()
 	detail := fmt.Sprintf("{ \"Status\": \"%s\", \"Message\": \"%s\"}", status, message)
 	detailType := "User Data"
 
-	// Create the PutEvents input
-	input := &cloudwatchevents.PutEventsInput{
-		Entries: []types.PutEventsRequestEntry{
-			{
-				Detail:     aws.String(detail),
-				DetailType: aws.String(detailType),
-				Resources:  []string{e.InstanceID},
-				Source:     aws.String(e.Project),
-			},
-		},
-	}
-
-	// Send the event
-	_, err = client.PutEvents(ctx, input)
+	err := sendEvent(e.EBClient, detail, detailType, e.InstanceID, e.Project)
 	if err != nil {
 		return err
 	}

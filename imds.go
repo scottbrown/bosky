@@ -4,13 +4,15 @@ import (
 	"context"
 	"errors"
 
-	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/feature/ec2/imds"
 )
 
-func retrieveInstanceId(cfg aws.Config) (string, error) {
-	client := imds.NewFromConfig(cfg)
+type IMDSClient interface {
+	GetMetadata(context.Context, *imds.GetMetadataInput, ...func(*imds.Options)) (*imds.GetMetadataOutput, error)
+	GetInstanceIdentityDocument(context.Context, *imds.GetInstanceIdentityDocumentInput, ...func(*imds.Options)) (*imds.GetInstanceIdentityDocumentOutput, error)
+}
 
+func retrieveInstanceId(client IMDSClient) (string, error) {
 	ctx := context.TODO()
 
 	// Check if IMDS is available
