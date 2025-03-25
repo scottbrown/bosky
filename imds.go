@@ -30,5 +30,5 @@ func retrieveInstanceId(client IMDSClient) (string, error) {
 		return "", err
 	}
 
-	return resp.InstanceID, nil
+	return resp.InstanceIdentityDocument.InstanceID, nil
 }
