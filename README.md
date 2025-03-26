@@ -1,14 +1,14 @@
-![Bosky](bosky.small.png)
+![Beacon](beacon.small.png)
 
-# Bosky - EC2 User Data Event Emitter
+# Beacon - EC2 User Data Event Emitter
 
-Bosky sends events from EC2 user data scripts to AWS CloudWatch Events, enabling real-time monitoring of startup processes.
+Beacon sends events from EC2 user data scripts to AWS CloudWatch Events, enabling real-time monitoring of startup processes.
 
 ## Overview
 
 During EC2 instance startup, [cloud-init](https://cloud-init.io/) executes user data scripts to configure the machine and deploy applications. If these scripts fail, instances may terminate without alerting administrators, especially in autoscaling groups.
 
-Bosky solves this by emitting custom events to CloudWatch at critical points in your user data execution, allowing:
+Beacon solves this by emitting custom events to CloudWatch at critical points in your user data execution, allowing:
 - Real-time monitoring of user data script execution
 - Alerting on failures
 - Tracking of deployment steps
@@ -18,13 +18,13 @@ Bosky solves this by emitting custom events to CloudWatch at critical points in 
 
 ### Binary Installation
 
-1. Download the appropriate binary for your architecture from the [Releases page](https://github.com/scottbrown/bosky/releases)
-2. Copy to your instance: `sudo cp bosky /usr/local/bin/`
-3. Make executable: `sudo chmod +x /usr/local/bin/bosky`
+1. Download the appropriate binary for your architecture from the [Releases page](https://github.com/scottbrown/beacon/releases)
+2. Copy to your instance: `sudo cp beacon /usr/local/bin/`
+3. Make executable: `sudo chmod +x /usr/local/bin/beacon`
 
 ### Required IAM Permission
 
-EC2 instances using Bosky require the `events:PutEvents` permission:
+EC2 instances using Beacon require the `events:PutEvents` permission:
 
 ```json
 {
@@ -43,44 +43,44 @@ Add this to your instance profile or role.
 
 ## Usage
 
-Bosky can send three types of events: success (pass), failure (fail), or informational (info).
+Beacon can send three types of events: success (pass), failure (fail), or informational (info).
 
 ### Basic Usage
 
 ```bash
 # Send success event
-bosky --pass "User data processed successfully"
+beacon --pass "User data processed successfully"
 
 # Send failure event
-bosky --fail "Failed to download application artifact"
+beacon --fail "Failed to download application artifact"
 
 # Send informational event
-bosky --info "Starting application deployment"
+beacon --info "Starting application deployment"
 
 # Custom status
-bosky --status "warning" "Disk space below threshold"
+beacon --status "warning" "Disk space below threshold"
 ```
 
 ### Environment Variables
 
-- `BOSKY_INSTANCE_ID`: Override instance ID detection
-- `BOSKY_PROJECT`: Set project name (default: "unknown")
+- `BEACON_INSTANCE_ID`: Override instance ID detection
+- `BEACON_PROJECT`: Set project name (default: "unknown")
 
 ### Command Line Options
 
 ```
 Usage:
-  bosky [message] [flags]
+  beacon [message] [flags]
 
 Flags:
   -f, --fail            Emits a failure event
-  -h, --help            Help for bosky
+  -h, --help            Help for beacon
       --info            Emits an informational event
       --instance-id     Specifies the EC2 INSTANCE_ID instead of looking it up
   -p, --pass            Emits a successful event
       --project string  Names the PROJECT as a source for the event (default "unknown")
       --status string   Emits an event with a custom STATUS
-  -v, --version         Version for bosky
+  -v, --version         Version for beacon
 ```
 
 ## CloudWatch Events Setup
@@ -120,23 +120,23 @@ Connect your rule to targets like:
 #!/bin/bash
 
 # Start user data execution
-bosky --info "Starting user data execution"
+beacon --info "Starting user data execution"
 
 # Install dependencies
 apt-get update
 if [ $? -eq 0 ]; then
-  bosky --info "System packages updated"
+  beacon --info "System packages updated"
 else
-  bosky --fail "Failed to update system packages"
+  beacon --fail "Failed to update system packages"
   exit 1
 fi
 
 # Deploy application
 ./deploy_app.sh
 if [ $? -eq 0 ]; then
-  bosky --pass "Application deployed successfully"
+  beacon --pass "Application deployed successfully"
 else
-  bosky --fail "Application deployment failed"
+  beacon --fail "Application deployment failed"
   exit 1
 fi
 ```
@@ -145,11 +145,11 @@ fi
 
 ```bash
 #!/bin/bash
-export BOSKY_PROJECT="webapp-fleet"
+export BEACON_PROJECT="webapp-fleet"
 
-bosky --info "Starting webapp deployment"
+beacon --info "Starting webapp deployment"
 # Deployment steps...
-bosky --pass "Webapp successfully deployed"
+beacon --pass "Webapp successfully deployed"
 ```
 
 ## Building From Source
@@ -160,8 +160,8 @@ Prerequisites:
 
 ```bash
 # Clone the repository
-git clone https://github.com/scottbrown/bosky.git
-cd bosky
+git clone https://github.com/scottbrown/beacon.git
+cd beacon
 
 # Build
 task build

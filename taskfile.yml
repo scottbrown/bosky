@@ -2,8 +2,8 @@ version: '3'
 
 vars:
   GO_BIN: go
-  PKG: github.com/scottbrown/bosky
-  ARTIFACT: bosky
+  PKG: github.com/scottbrown/beacon
+  ARTIFACT: beacon
   BUILD_DIR: .build
   DIST_DIR: .dist
   GIT_HASH:

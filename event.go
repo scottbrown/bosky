@@ -1,4 +1,4 @@
-package bosky
+package beacon
 
 import (
 	"fmt"

@@ -1,4 +1,4 @@
-module github.com/scottbrown/bosky
+module github.com/scottbrown/beacon
 
 go 1.24.1
 

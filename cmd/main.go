@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/scottbrown/bosky"
+	"github.com/scottbrown/beacon"
 
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/feature/ec2/imds"
@@ -24,10 +24,10 @@ var (
 
 func main() {
 	rootCmd := &cobra.Command{
-		Use:     "bosky [message]",
+		Use:     "beacon [message]",
 		Short:   "Allows user data to emit custom CloudWatch Events during processing",
 		Long:    "Allows user data to emit custom CloudWatch Events during processing. Returns 0 on success, 1 on failure.",
-		Example: "bosky --fail \"Artifact download returned 404\"",
+		Example: "beacon --fail \"Artifact download returned 404\"",
 		Args:    cobra.MinimumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			message := args[0]
@@ -40,7 +40,7 @@ func main() {
 				return err
 			}
 
-			emitter := bosky.Emitter{
+			emitter := beacon.Emitter{
 				UserDataStatus: userDataStatus,
 				StatusFail:     statusFail,
 				StatusInfo:     statusInfo,
@@ -70,17 +70,17 @@ func main() {
 	rootCmd.Flags().BoolVarP(&statusPass, "pass", "p", false, "Emits a successful event")
 
 	// Support environment variables for instance-id and project
-	if os.Getenv("BOSKY_INSTANCE_ID") != "" && instance_id == "" {
-		instance_id = os.Getenv("BOSKY_INSTANCE_ID")
+	if os.Getenv("BEACON_INSTANCE_ID") != "" && instance_id == "" {
+		instance_id = os.Getenv("BEACON_INSTANCE_ID")
 	}
 
-	if os.Getenv("BOSKY_PROJECT") != "" && project == "unknown" {
-		project = os.Getenv("BOSKY_PROJECT")
+	if os.Getenv("BEACON_PROJECT") != "" && project == "unknown" {
+		project = os.Getenv("BEACON_PROJECT")
 	}
 
 	// Add author info
-	rootCmd.Version = bosky.VERSION
-	rootCmd.SetVersionTemplate("bosky version {{.Version}}\nAuthor: Scott Brown\n")
+	rootCmd.Version = beacon.VERSION
+	rootCmd.SetVersionTemplate("beacon version {{.Version}}\nAuthor: Scott Brown\n")
 
 	if err := rootCmd.Execute(); err != nil {
 		os.Exit(1)

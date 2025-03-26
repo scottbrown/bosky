@@ -1,4 +1,4 @@
-package bosky
+package beacon
 
 const (
 	STATUS_FAIL string = "fail"
