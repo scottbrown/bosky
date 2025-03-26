@@ -1,0 +1,130 @@
+version: '3'
+
+vars:
+  GO_BIN: go
+  PKG: github.com/scottbrown/bosky
+  ARTIFACT: bosky
+  BUILD_DIR: .build
+  DIST_DIR: .dist
+  GIT_HASH:
+    sh: git rev-parse --short HEAD
+  # Build target definitions
+  PLATFORMS:
+    - {GOOS: linux, GOARCH: amd64, SUFFIX: ""}
+    - {GOOS: linux, GOARCH: arm, SUFFIX: ""}
+    - {GOOS: linux, GOARCH: 386, SUFFIX: ""}
+    - {GOOS: darwin, GOARCH: amd64, SUFFIX: ""}
+    - {GOOS: windows, GOARCH: amd64, SUFFIX: ".exe"}
+    - {GOOS: windows, GOARCH: 386, SUFFIX: ".exe"}
+
+tasks:
+  default:
+    desc: Show help information about available tasks
+    cmds:
+      - task --list-all
+
+  clean:
+    desc: Remove all derived files
+    cmds:
+      - rm -rf {{.BUILD_DIR}} {{.DIST_DIR}}
+
+  ensure-dir:
+    internal: true
+    cmds:
+      - mkdir -p {{.BUILD_DIR}}
+      - mkdir -p {{.DIST_DIR}}
+
+  deps:
+    desc: Ensure all dependencies are downloaded
+    deps: [ensure-dir]
+    cmds:
+      - '{{.GO_BIN}} mod download'
+
+  fmt:
+    desc: Format all Go code
+    cmds:
+      - '{{.GO_BIN}} fmt ./...'
+
+  test:
+    desc: Run all tests
+    cmds:
+      - echo "Running tests..."
+      - '{{.GO_BIN}} test ./...'
+
+  build:
+    desc: Build a local version of the application
+    deps: [ensure-dir, fmt]
+    generates:
+      - '{{.BUILD_DIR}}/{{.ARTIFACT}}'
+    cmds:
+      - echo "Building {{.ARTIFACT}}..."
+      - |
+        {{.GO_BIN}} build -ldflags "-X {{.PKG}}.VERSION={{.GIT_HASH}}" \
+          -o {{.BUILD_DIR}}/{{.ARTIFACT}} {{.PKG}}/cmd
+
+  build-platform:
+    internal: true
+    vars:
+      GOOS: '{{.GOOS}}'
+      GOARCH: '{{.GOARCH}}'
+      SUFFIX: '{{.SUFFIX}}'
+      VERSION: '{{.VERSION | default .GIT_HASH}}'
+      OUTDIR: '{{.BUILD_DIR}}/{{.GOOS}}-{{.GOARCH}}'
+    cmds:
+      - mkdir -p {{.OUTDIR}}
+      - echo "Building for {{.GOOS}}/{{.GOARCH}}..."
+      - |
+        GOOS={{.GOOS}} GOARCH={{.GOARCH}} {{.GO_BIN}} build \
+          -ldflags "-X {{.PKG}}.VERSION={{.VERSION}}" \
+          -o {{.OUTDIR}}/{{.ARTIFACT}}{{.SUFFIX}} {{.PKG}}/cmd
+
+  dist:
+    desc: Build distributable versions of the app in all OS/ARCH combos
+    deps: [ensure-dir]
+    vars:
+      VERSION: "{{.VERSION | default .GIT_HASH}}"
+    cmds:
+      - 'echo "Building for all platforms (version: {{.VERSION}})..."'
+      - for:
+          var: PLATFORMS
+        task: build-platform
+        vars:
+          GOOS: "{{.ITEM.GOOS}}"
+          GOARCH: "{{.ITEM.GOARCH}}"
+          SUFFIX: "{{.ITEM.SUFFIX}}"
+          VERSION: "{{.VERSION}}"
+
+  package-platform:
+    internal: true
+    vars:
+      GOOS: '{{.GOOS}}'
+      GOARCH: '{{.GOARCH}}'
+      SUFFIX: '{{.SUFFIX}}'
+      VERSION: '{{.VERSION}}'
+      OUTDIR: '{{.BUILD_DIR}}/{{.GOOS}}-{{.GOARCH}}'
+      ARCHIVE_NAME: '{{.DIST_DIR}}/{{.ARTIFACT}}_{{.VERSION}}_{{.GOOS}}_{{.GOARCH}}.tar.gz'
+    cmds:
+      - echo "Packaging for {{.GOOS}}/{{.GOARCH}}..."
+      - tar cfz {{.ARCHIVE_NAME}} -C {{.OUTDIR}} {{.ARTIFACT}}{{.SUFFIX}}
+
+  release:
+    desc: Create releasable artifacts ready for public download
+    summary: |
+      Create releasable artifacts ready for public download
+      
+      Usage:
+        task release VERSION=1.0.0
+    deps: [dist]
+    preconditions:
+      - sh: "test ! -z '{{.VERSION}}'"
+        msg: "VERSION variable must be set: task release VERSION=x.y.z"
+    cmds:
+      - echo "Creating release archives for version {{.VERSION}}..."
+      - for:
+          var: PLATFORMS
+        task: package-platform
+        vars:
+          GOOS: "{{.ITEM.GOOS}}"
+          GOARCH: "{{.ITEM.GOARCH}}"
+          SUFFIX: "{{.ITEM.SUFFIX}}"
+          VERSION: "{{.VERSION}}"

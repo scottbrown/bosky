@@ -163,16 +163,16 @@ git clone https://github.com/scottbrown/bosky.git
 cd bosky
 
 # Build
-make build
+task build
 
 # Run tests
-make test
+task test
 
 # Build for all platforms
-make dist
+task dist
 
 # Create release artifacts (requires VERSION env var)
-VERSION=1.1.0 make release
+task release VERSION=1.1.0
 ```
 
 ## Cost Considerations
