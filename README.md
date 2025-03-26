@@ -156,6 +156,7 @@ bosky --pass "Webapp successfully deployed"
 
 Prerequisites:
 - Go 1.24+
+- [Task](https://taskfile.dev) (v3.x)
 
 ```bash
 # Clone the repository
@@ -173,6 +174,12 @@ task dist
 
 # Create release artifacts (requires VERSION env var)
 task release VERSION=1.1.0
+```
+
+You can list all available tasks with:
+
+```bash
+task
 ```
 
 ## Cost Considerations
