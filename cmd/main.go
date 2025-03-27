@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"time"
 
 	"github.com/scottbrown/beacon"
 
@@ -12,6 +13,8 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/cloudwatchevents"
 	"github.com/spf13/cobra"
 )
+
+const DEFAULT_TIMEOUT time.Duration = 30 * time.Second
 
 var (
 	userDataStatus string
@@ -32,7 +35,8 @@ func main() {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			message := args[0]
 
-			ctx := context.TODO()
+			ctx, cancel := context.WithTimeout(context.Background(), DEFAULT_TIMEOUT)
+			defer cancel()
 
 			// Load the AWS SDK configuration
 			cfg, err := config.LoadDefaultConfig(ctx, config.WithRetryMaxAttempts(3))
