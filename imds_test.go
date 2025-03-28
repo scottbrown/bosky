@@ -67,7 +67,7 @@ func TestRetrieveInstanceID(t *testing.T) {
 			mockClient := &MockIMDSClient{}
 			tt.setupMock(mockClient)
 
-			instanceID, err := retrieveInstanceId(mockClient)
+			instanceID, err := RetrieveInstanceID(context.Background(), mockClient)
 
 			if tt.expectError {
 				if err == nil {
