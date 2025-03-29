@@ -5,6 +5,8 @@ import (
 	"fmt"
 )
 
+// handleListPermissions displays the IAM permissions required by the
+// application.
 func handleListPermissions(ctx context.Context) error {
 	fmt.Println("Required IAM permissions:")
 

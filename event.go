@@ -10,6 +10,8 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/cloudwatchevents/types"
 )
 
+// Emitter sends events to EventBridge with information about EC2 user
+// data script execution
 type Emitter struct {
 	InstanceID InstanceID
 	Project    Project
@@ -18,6 +20,7 @@ type Emitter struct {
 	IMDSClient IMDSClient
 }
 
+// Emit sends an event to EventBridge with the specific status and message
 func (e Emitter) Emit(ctx context.Context, status Status, message string) error {
 	d := Detail{
 		Status:  string(status),

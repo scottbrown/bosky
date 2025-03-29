@@ -4,6 +4,9 @@ import (
 	"github.com/scottbrown/beacon"
 )
 
+// chooseStatusMessage determines which status to use based on command flags
+// Priority order: custom status, fail, pass, info
+// Default is info if no status flags are set
 func chooseStatusMessage() beacon.Status {
 	if userDataStatus != "" {
 		return beacon.Status(userDataStatus)

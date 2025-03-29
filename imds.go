@@ -7,6 +7,9 @@ import (
 	"github.com/aws/aws-sdk-go-v2/feature/ec2/imds"
 )
 
+// RetrieveInstanceID gets the current EC2 instance ID from the metadata
+// service.  If the metadata service is unavailable, it returns an error
+// suggesting the use of `--instance-id`.
 func RetrieveInstanceID(ctx context.Context, client IMDSClient) (string, error) {
 	// Check if IMDS is available
 	_, err := client.GetMetadata(ctx, &imds.GetMetadataInput{

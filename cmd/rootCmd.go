@@ -23,6 +23,7 @@ var rootCmd = &cobra.Command{
 	Version: beacon.VERSION,
 }
 
+// handleRoot processes the main command logic
 func handleRoot(cmd *cobra.Command, args []string) error {
 	ctx, cancel := context.WithTimeout(context.Background(), beacon.DEFAULT_TIMEOUT)
 	defer cancel()
