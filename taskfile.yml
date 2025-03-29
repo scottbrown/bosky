@@ -14,6 +14,7 @@ vars:
     - {GOOS: linux, GOARCH: arm, SUFFIX: ""}
     - {GOOS: linux, GOARCH: 386, SUFFIX: ""}
     - {GOOS: darwin, GOARCH: amd64, SUFFIX: ""}
+    - {GOOS: darwin, GOARCH: arm64, SUFFIX: ""}
     - {GOOS: windows, GOARCH: amd64, SUFFIX: ".exe"}
     - {GOOS: windows, GOARCH: 386, SUFFIX: ".exe"}
 
