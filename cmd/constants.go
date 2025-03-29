@@ -31,7 +31,7 @@ const (
 
 	FlagPassLong    string = "pass"
 	FlagPassShort   string = "p"
-	FlagPassDesc    string = "Emits a successful event"
+	FlagPassDesc    string = "Emits a successful event" // #nosec G101
 	FlagPassDefault bool   = false
 
 	FlagPermissionsLong    string = "permissions"

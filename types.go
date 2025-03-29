@@ -31,18 +31,22 @@ type Detail struct {
 }
 
 func (d DetailType) Validate() error {
-	l := len(d)
-	if l > DETAIL_TYPE_MAX_LENGTH {
-		return fmt.Errorf("Detail type length of %d bytes exceeds %d bytes", l, DETAIL_TYPE_MAX_LENGTH)
+	size := len(d)
+	if size == 0 {
+		return fmt.Errorf("Detail type cannot be empty")
+	}
+
+	if size > DETAIL_TYPE_MAX_LENGTH {
+		return fmt.Errorf("Detail type length of %d bytes exceeds %d bytes", size, DETAIL_TYPE_MAX_LENGTH)
 	}
 
 	return nil
 }
 
 func (i InstanceID) Validate() error {
-	l := len(i)
-	if l > RESOURCE_ARN_MAX_LENGTH {
-		return fmt.Errorf("Instance ID length of %d bytes exceeds %d bytes", l, RESOURCE_ARN_MAX_LENGTH)
+	size := len(i)
+	if size > RESOURCE_ARN_MAX_LENGTH {
+		return fmt.Errorf("Instance ID length of %d bytes exceeds %d bytes", size, RESOURCE_ARN_MAX_LENGTH)
 	}
 
 	return nil
