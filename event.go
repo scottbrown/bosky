@@ -34,8 +34,13 @@ func (e Emitter) Emit(ctx context.Context, status Status, message string) error 
 		return err
 	}
 
-	if err := e.InstanceID.Validate(); err != nil {
-		return err
+	var resources []string
+	if e.InstanceID != "" {
+		if err := e.InstanceID.Validate(); err != nil {
+			return err
+		}
+
+		resources = append(resources, string(e.InstanceID))
 	}
 
 	input := &cloudwatchevents.PutEventsInput{
@@ -43,7 +48,7 @@ func (e Emitter) Emit(ctx context.Context, status Status, message string) error 
 			{
 				Detail:     aws.String(string(detail)),
 				DetailType: aws.String(string(detailType)),
-				Resources:  []string{string(e.InstanceID)},
+				Resources:  resources,
 				Source:     aws.String(string(e.Project)),
 			},
 		},
