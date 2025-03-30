@@ -17,7 +17,7 @@ func RetrieveInstanceID(ctx context.Context, client IMDSClient) (string, error) 
 	})
 
 	if err != nil {
-		return "", errors.New("Cannot lookup instance ID because EC2 metadata service is not available. Use --instance-id")
+		return "", errors.New("cannot lookup instance ID because EC2 metadata service is not available. Use --instance-id")
 	}
 
 	// Get instance identity document
@@ -26,5 +26,5 @@ func RetrieveInstanceID(ctx context.Context, client IMDSClient) (string, error) 
 		return "", err
 	}
 
-	return resp.InstanceIdentityDocument.InstanceID, nil
+	return resp.InstanceIdentityDocument.InstanceID, nil //nolint:all
 }

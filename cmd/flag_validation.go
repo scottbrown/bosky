@@ -19,7 +19,7 @@ func handleFlagValidation(cmd *cobra.Command, args []string) error {
 // validateRequiredFlags checks that at least one status flag is provided
 func validateRequiredFlags(cmd *cobra.Command) error {
 	if !statusFail && !statusInfo && !statusPass && userDataStatus == "" {
-		return fmt.Errorf("At least one of --fail, --info, --pass, or --status is required")
+		return fmt.Errorf("at least one of --fail, --info, --pass, or --status is required")
 	}
 
 	return nil

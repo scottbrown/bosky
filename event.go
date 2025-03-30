@@ -80,7 +80,7 @@ func validateEventPayloadSize(input *cloudwatchevents.PutEventsInput) error {
 		totalBytes += len(*j.Source)
 
 		if totalBytes > EVENT_PAYLOAD_MAX_BYTES {
-			return fmt.Errorf("Payload size of %d bytes exceeds %d bytes", totalBytes, EVENT_PAYLOAD_MAX_BYTES)
+			return fmt.Errorf("payload size of %d bytes exceeds %d bytes", totalBytes, EVENT_PAYLOAD_MAX_BYTES)
 		}
 	}
 

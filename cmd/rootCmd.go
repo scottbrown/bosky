@@ -33,7 +33,7 @@ func handleRoot(cmd *cobra.Command, args []string) error {
 	}
 
 	if len(args) < 1 {
-		return fmt.Errorf("Missing [message]\n")
+		return fmt.Errorf("missing [message]")
 	}
 
 	message := args[0]

@@ -54,11 +54,11 @@ func (d DetailType) Validate() error {
 func (i InstanceID) Validate() error {
 	size := len(i)
 	if size == 0 {
-		return fmt.Errorf("Instance ID cannot be empty")
+		return fmt.Errorf("instance ID cannot be empty")
 	}
 
 	if size > RESOURCE_ARN_MAX_LENGTH {
-		return fmt.Errorf("Instance ID length of %d bytes exceeds %d bytes", size, RESOURCE_ARN_MAX_LENGTH)
+		return fmt.Errorf("instance ID length of %d bytes exceeds %d bytes", size, RESOURCE_ARN_MAX_LENGTH)
 	}
 
 	return nil
