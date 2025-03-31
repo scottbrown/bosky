@@ -8,6 +8,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/feature/ec2/imds v1.16.30
 	github.com/aws/aws-sdk-go-v2/service/cloudwatchevents v1.28.1
 	github.com/spf13/cobra v1.9.1
+	gopkg.in/yaml.v3 v3.0.1
 )
 
 require (

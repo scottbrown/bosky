@@ -36,6 +36,22 @@ func handleRoot(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("missing [message]")
 	}
 
+	// Load beacon configuration
+	beaconConfig, err := beacon.LoadConfig(configFile)
+	if err != nil && configFile != "" {
+		return fmt.Errorf("failed to load config file: %w", err)
+	}
+
+	if beaconConfig != nil {
+		if instanceIDNotProvided() && beaconConfig.InstanceID != "" {
+			instanceID = beaconConfig.InstanceID
+		}
+
+		if project == FlagProjectDefault && beaconConfig.Project != "" {
+			project = beaconConfig.Project
+		}
+	}
+
 	message := args[0]
 
 	cfg, err := config.LoadDefaultConfig(ctx, config.WithRetryMaxAttempts(3))

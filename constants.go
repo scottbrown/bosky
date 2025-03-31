@@ -21,6 +21,9 @@ const DEFAULT_TIMEOUT time.Duration = 30 * time.Second
 // DEFAULT_DETAIL_TYPE defines the default EventBridge detail type
 const DEFAULT_DETAIL_TYPE string = "User Data Beacon"
 
+// DEFAULT_CONFIG_PATH defines where the config file is auto-discovered
+const DEFAULT_CONFIG_PATH = "/etc/beacon/config.yml"
+
 // AWS length/size constraints
 // Ref: https://docs.aws.amazon.com/eventbridge/latest/APIReference/API_PutEvents.html
 // Ref: https://docs.aws.amazon.com/eventbridge/latest/APIReference/API_PutEventsRequestEntry.html

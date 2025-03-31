@@ -37,4 +37,9 @@ const (
 	FlagPermissionsLong    string = "permissions"
 	FlagPermissionsDesc    string = "Displays IAM permissions required by the application"
 	FlagPermissionsDefault bool   = false
+
+	FlagConfigLong    string = "config"
+	FlagConfigShort   string = "c"
+	FlagConfigDesc    string = "Specifies a path to load a config file"
+	FlagConfigDefault string = "/etc/beacon/config.yml"
 )

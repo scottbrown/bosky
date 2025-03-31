@@ -8,6 +8,7 @@ var (
 	instanceID     string
 	project        string
 	permissions    bool
+	configFile     string
 )
 
 var requiredPermissions = []string{
