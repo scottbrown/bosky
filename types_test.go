@@ -65,7 +65,7 @@ func TestInstanceIDValidate(t *testing.T) {
 	}{
 		{
 			"knowngood",
-			InstanceID("test"),
+			InstanceID("arn:aws:ec2:us-east-1:0123456789012:instance/i-abc1234567"),
 			false,
 			"",
 		},
@@ -77,13 +77,13 @@ func TestInstanceIDValidate(t *testing.T) {
 		},
 		{
 			"at maximum",
-			InstanceID(strings.Repeat("a", RESOURCE_ARN_MAX_LENGTH)),
+			InstanceID("arn:aws:ec2:us-east-1:0123456789012:instance/i-" + strings.Repeat("a", RESOURCE_ARN_MAX_LENGTH-47)),
 			false,
 			"",
 		},
 		{
 			"too long",
-			InstanceID(strings.Repeat("a", RESOURCE_ARN_MAX_LENGTH+1)),
+			InstanceID("arn:aws:ec2:us-east-1:0123456789012:instance/i-" + strings.Repeat("a", RESOURCE_ARN_MAX_LENGTH-46)),
 			true,
 			fmt.Sprintf("instance ID length of %d bytes exceeds %d bytes", RESOURCE_ARN_MAX_LENGTH+1, RESOURCE_ARN_MAX_LENGTH),
 		},

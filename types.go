@@ -3,6 +3,7 @@ package beacon
 import (
 	"context"
 	"fmt"
+	"regexp"
 
 	"github.com/aws/aws-sdk-go-v2/feature/ec2/imds"
 	"github.com/aws/aws-sdk-go-v2/service/cloudwatchevents"
@@ -59,6 +60,12 @@ func (i InstanceID) Validate() error {
 
 	if size > RESOURCE_ARN_MAX_LENGTH {
 		return fmt.Errorf("instance ID length of %d bytes exceeds %d bytes", size, RESOURCE_ARN_MAX_LENGTH)
+	}
+
+	arnPattern := regexp.MustCompile(`^arn:aws:ec2:[a-z0-9-]+:[0-9]+:instance/i-[a-z0-9]+$`)
+
+	if !arnPattern.MatchString(string(i)) {
+		return fmt.Errorf("invalid format. Must be a valid EC2 instance ARN")
 	}
 
 	return nil
