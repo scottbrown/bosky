@@ -41,5 +41,5 @@ const (
 	FlagConfigLong    string = "config"
 	FlagConfigShort   string = "c"
 	FlagConfigDesc    string = "Specifies a path to load a config file"
-	FlagConfigDefault string = "/etc/beacon/config.yml"
+	FlagConfigDefault string = ""
 )
