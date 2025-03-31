@@ -26,7 +26,7 @@ func LoadConfig(path string) (*Config, error) {
 
 	// Check if file exists
 	if _, err := os.Stat(path); !os.IsNotExist(err) {
-		data, err := os.ReadFile(path)
+		data, err := os.ReadFile(path) // #nosec G304
 		if err != nil {
 			return nil, err
 		}

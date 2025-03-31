@@ -13,6 +13,7 @@ func init() {
 	rootCmd.Flags().BoolVarP(&statusPass, FlagPassLong, FlagPassShort, FlagPassDefault, FlagPassDesc)
 	rootCmd.Flags().BoolVar(&permissions, FlagPermissionsLong, FlagPermissionsDefault, FlagPermissionsDesc)
 	rootCmd.Flags().StringVarP(&configFile, FlagConfigLong, FlagConfigShort, FlagConfigDefault, FlagConfigDesc)
+	rootCmd.Flags().BoolVar(&generateConfig, FlagGenerateConfigLong, FlagGenerateConfigDefault, FlagGenerateConfigDesc)
 
 	// Support environment variables for instance-id and project
 	if os.Getenv(EnvBeaconInstanceID) != "" && instanceID == FlagInstanceIDDefault {

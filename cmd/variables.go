@@ -9,6 +9,7 @@ var (
 	project        string
 	permissions    bool
 	configFile     string
+	generateConfig bool
 )
 
 var requiredPermissions = []string{

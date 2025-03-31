@@ -42,4 +42,8 @@ const (
 	FlagConfigShort   string = "c"
 	FlagConfigDesc    string = "Specifies a path to load a config file"
 	FlagConfigDefault string = ""
+
+	FlagGenerateConfigLong    string = "generate-config"
+	FlagGenerateConfigDesc    string = "Displays a template for the config file"
+	FlagGenerateConfigDefault bool   = false
 )

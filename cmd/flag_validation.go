@@ -9,7 +9,7 @@ import (
 // handleFlagValidation ensures that at least one status flag is provided
 // This is called before command execution to validate inputs
 func handleFlagValidation(cmd *cobra.Command, args []string) error {
-	if permissions {
+	if permissions || generateConfig {
 		return nil
 	}
 

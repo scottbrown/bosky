@@ -32,6 +32,10 @@ func handleRoot(cmd *cobra.Command, args []string) error {
 		return handleListPermissions(ctx)
 	}
 
+	if generateConfig {
+		return handleGenerateConfig(ctx)
+	}
+
 	if len(args) < 1 {
 		return fmt.Errorf("missing [message]")
 	}
