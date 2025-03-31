@@ -43,7 +43,7 @@ func TestRetrieveInstanceID(t *testing.T) {
 			},
 			expectedID:       "",
 			expectError:      true,
-			expectedErrorMsg: "Cannot lookup instance ID because EC2 metadata service is not available. Use --instance-id",
+			expectedErrorMsg: "cannot lookup instance ID because EC2 metadata service is not available. Use --instance-id",
 		},
 		{
 			name: "Error getting instance identity document",

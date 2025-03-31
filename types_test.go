@@ -73,7 +73,7 @@ func TestInstanceIDValidate(t *testing.T) {
 			"empty",
 			InstanceID(""),
 			true,
-			"Instance ID cannot be empty",
+			"instance ID cannot be empty",
 		},
 		{
 			"at maximum",
@@ -85,7 +85,7 @@ func TestInstanceIDValidate(t *testing.T) {
 			"too long",
 			InstanceID(strings.Repeat("a", RESOURCE_ARN_MAX_LENGTH+1)),
 			true,
-			fmt.Sprintf("Instance ID length of %d bytes exceeds %d bytes", RESOURCE_ARN_MAX_LENGTH+1, RESOURCE_ARN_MAX_LENGTH),
+			fmt.Sprintf("instance ID length of %d bytes exceeds %d bytes", RESOURCE_ARN_MAX_LENGTH+1, RESOURCE_ARN_MAX_LENGTH),
 		},
 	}
 
