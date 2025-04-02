@@ -63,7 +63,6 @@ beacon --status "warning" "Disk space below threshold"
 
 ### Environment Variables
 
-- `BEACON_INSTANCE_ID`: Override instance ID detection
 - `BEACON_PROJECT`: Set project name (default: "unknown")
 
 ### Command Line Options
@@ -73,14 +72,16 @@ Usage:
   beacon [message] [flags]
 
 Flags:
-  -f, --fail            Emits a failure event
-  -h, --help            Help for beacon
-      --info            Emits an informational event
-      --instance-id     Specifies the EC2 INSTANCE_ID instead of looking it up
-  -p, --pass            Emits a successful event
-      --project string  Names the PROJECT as a source for the event (default "unknown")
-      --status string   Emits an event with a custom STATUS
-  -v, --version         Version for beacon
+  -c, --config string     Specifies a path to load a config file
+  -f, --fail              Emits a failure event
+      --generate-config   Displays a template for the config file
+  -h, --help              Help for beacon
+      --info              Emits an informational event
+  -p, --pass              Emits a successful event
+      --permissions       Displays IAM permissions required by the application
+      --project string    Names the PROJECT as a source for the event (default "unknown")
+      --status string     Emits an event with a custom STATUS
+  -v, --version           Version for beacon
 ```
 
 ## CloudWatch Events Setup

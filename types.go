@@ -3,6 +3,7 @@ package beacon
 import (
 	"context"
 	"fmt"
+	"regexp"
 
 	"github.com/aws/aws-sdk-go-v2/feature/ec2/imds"
 	"github.com/aws/aws-sdk-go-v2/service/cloudwatchevents"
@@ -26,8 +27,8 @@ type Status string
 // Project represents the project name for event source identification
 type Project string
 
-// InstanceID represents an EC2 instance identifier
-type InstanceID string
+// InstanceARN represents an EC2 instance identifier
+type InstanceARN string
 
 // DetailType represents the EventBridge detail type
 type DetailType string
@@ -51,14 +52,20 @@ func (d DetailType) Validate() error {
 	return nil
 }
 
-func (i InstanceID) Validate() error {
+func (i InstanceARN) Validate() error {
 	size := len(i)
 	if size == 0 {
-		return fmt.Errorf("instance ID cannot be empty")
+		return fmt.Errorf("instance ARN cannot be empty")
 	}
 
 	if size > RESOURCE_ARN_MAX_LENGTH {
-		return fmt.Errorf("instance ID length of %d bytes exceeds %d bytes", size, RESOURCE_ARN_MAX_LENGTH)
+		return fmt.Errorf("instance ARN length of %d bytes exceeds %d bytes", size, RESOURCE_ARN_MAX_LENGTH)
+	}
+
+	arnPattern := regexp.MustCompile(`^arn:aws:ec2:[a-z0-9-]+:[0-9]+:instance/i-[a-z0-9]+$`)
+
+	if !arnPattern.MatchString(string(i)) {
+		return fmt.Errorf("invalid format. Must be a valid EC2 instance ARN")
 	}
 
 	return nil

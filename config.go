@@ -7,8 +7,7 @@ import (
 
 // Config holds the application configuration
 type Config struct {
-	Project    string `yaml:"project"`
-	InstanceID string `yaml:"instance_id"`
+	Project string `yaml:"project"`
 }
 
 // LoadConfig attempts to load configuration from the given path

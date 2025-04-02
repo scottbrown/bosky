@@ -11,8 +11,7 @@ import (
 
 func handleGenerateConfig(ctx context.Context) error {
 	configFile := beacon.Config{
-		InstanceID: "i-abcdef1234",
-		Project:    "example",
+		Project: "example",
 	}
 
 	template, err := yaml.Marshal(configFile)

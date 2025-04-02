@@ -28,9 +28,9 @@ Beacon can send three types of events:
 Example:
 
 	emitter := beacon.Emitter{
-		InstanceID: beacon.InstanceID("i-1234567890abcdef0"),
-		Project:    beacon.Project("my-project"),
-		EBClient:   cloudwatchevents.NewFromConfig(cfg),
+		InstanceARN: beacon.InstanceARN("arn:aws:ec2:us-east-1:0123456789012:instance/i-1234567890abcdef0"),
+		Project:     beacon.Project("my-project"),
+		EBClient:    cloudwatchevents.NewFromConfig(cfg),
 	}
 
 	// Send a success event

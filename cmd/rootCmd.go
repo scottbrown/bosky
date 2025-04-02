@@ -47,10 +47,6 @@ func handleRoot(cmd *cobra.Command, args []string) error {
 	}
 
 	if beaconConfig != nil {
-		if instanceIDNotProvided() && beaconConfig.InstanceID != "" {
-			instanceID = beaconConfig.InstanceID
-		}
-
 		if project == FlagProjectDefault && beaconConfig.Project != "" {
 			project = beaconConfig.Project
 		}
@@ -63,17 +59,12 @@ func handleRoot(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	if instanceIDNotProvided() {
-		instanceID, err = beacon.RetrieveInstanceID(ctx, imds.NewFromConfig(cfg))
-		if err != nil {
-			return err
-		}
-	}
+	instanceARN, err := beacon.RetrieveInstanceARN(ctx, imds.NewFromConfig(cfg))
 
 	emitter := beacon.Emitter{
-		InstanceID: beacon.InstanceID(instanceID),
-		Project:    beacon.Project(project),
-		EBClient:   cloudwatchevents.NewFromConfig(cfg),
+		InstanceARN: instanceARN,
+		Project:     beacon.Project(project),
+		EBClient:    cloudwatchevents.NewFromConfig(cfg),
 	}
 
 	status := chooseStatusMessage()
@@ -85,8 +76,4 @@ func handleRoot(cmd *cobra.Command, args []string) error {
 	}
 
 	return nil
-}
-
-func instanceIDNotProvided() bool {
-	return instanceID == FlagInstanceIDDefault
 }

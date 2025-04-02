@@ -5,7 +5,6 @@ var (
 	statusFail     bool
 	statusInfo     bool
 	statusPass     bool
-	instanceID     string
 	project        string
 	permissions    bool
 	configFile     string

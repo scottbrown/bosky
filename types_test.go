@@ -56,42 +56,42 @@ func TestDetailTypeValidate(t *testing.T) {
 	}
 }
 
-func TestInstanceIDValidate(t *testing.T) {
+func TestInstanceARNValidate(t *testing.T) {
 	cases := []struct {
 		name           string
-		instanceID     InstanceID
+		instanceARN    InstanceARN
 		expectedErr    bool
 		expectedErrMsg string
 	}{
 		{
 			"knowngood",
-			InstanceID("test"),
+			InstanceARN("arn:aws:ec2:us-east-1:0123456789012:instance/i-abc1234567"),
 			false,
 			"",
 		},
 		{
 			"empty",
-			InstanceID(""),
+			InstanceARN(""),
 			true,
-			"instance ID cannot be empty",
+			"instance ARN cannot be empty",
 		},
 		{
 			"at maximum",
-			InstanceID(strings.Repeat("a", RESOURCE_ARN_MAX_LENGTH)),
+			InstanceARN("arn:aws:ec2:us-east-1:0123456789012:instance/i-" + strings.Repeat("a", RESOURCE_ARN_MAX_LENGTH-47)),
 			false,
 			"",
 		},
 		{
 			"too long",
-			InstanceID(strings.Repeat("a", RESOURCE_ARN_MAX_LENGTH+1)),
+			InstanceARN("arn:aws:ec2:us-east-1:0123456789012:instance/i-" + strings.Repeat("a", RESOURCE_ARN_MAX_LENGTH-46)),
 			true,
-			fmt.Sprintf("instance ID length of %d bytes exceeds %d bytes", RESOURCE_ARN_MAX_LENGTH+1, RESOURCE_ARN_MAX_LENGTH),
+			fmt.Sprintf("instance ARN length of %d bytes exceeds %d bytes", RESOURCE_ARN_MAX_LENGTH+1, RESOURCE_ARN_MAX_LENGTH),
 		},
 	}
 
 	for _, tt := range cases {
 		t.Run(tt.name, func(t *testing.T) {
-			err := tt.instanceID.Validate()
+			err := tt.instanceARN.Validate()
 
 			if tt.expectedErr {
 				if err == nil {
