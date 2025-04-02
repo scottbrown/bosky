@@ -44,8 +44,8 @@ func TestEmitterEmit(t *testing.T) {
 		{
 			name: "Successfully emit event with instance ID provided",
 			emitter: Emitter{
-				InstanceID: "arn:aws:ec2:region:0123456789012:instance/i-12345abcdef",
-				Project:    "test-project",
+				InstanceARN: "arn:aws:ec2:region:0123456789012:instance/i-12345abcdef",
+				Project:     "test-project",
 			},
 			status:  Status(STATUS_INFO),
 			message: "Test message",
@@ -59,8 +59,8 @@ func TestEmitterEmit(t *testing.T) {
 		{
 			name: "Successfully emit event with instance ID fetched",
 			emitter: Emitter{
-				InstanceID: "", // Empty, should use IMDS
-				Project:    "test-project",
+				InstanceARN: "", // Empty, should use IMDS
+				Project:     "test-project",
 			},
 			status:  Status(STATUS_INFO),
 			message: "Test message",
@@ -76,7 +76,9 @@ func TestEmitterEmit(t *testing.T) {
 				imdsClient.GetInstanceIdentityDocumentFunc = func(ctx context.Context, input *imds.GetInstanceIdentityDocumentInput, opts ...func(*imds.Options)) (*imds.GetInstanceIdentityDocumentOutput, error) {
 					return &imds.GetInstanceIdentityDocumentOutput{
 						InstanceIdentityDocument: imds.InstanceIdentityDocument{
-              InstanceID: "arn:aws:ec2:region:0123456789012:instance/i-12345abcdef",
+							AccountID:  "0123456789012",
+							Region:     "us-east-1",
+							InstanceID: "i-12345abcdef",
 						},
 					}, nil
 				}
@@ -86,8 +88,8 @@ func TestEmitterEmit(t *testing.T) {
 		{
 			name: "Fail to send event",
 			emitter: Emitter{
-        InstanceID: "arn:aws:ec2:region:0123456789012:instance/i-12345abcdef",
-				Project:    "test-project",
+				InstanceARN: "arn:aws:ec2:region:0123456789012:instance/i-12345abcdef",
+				Project:     "test-project",
 			},
 			status:  Status(STATUS_INFO),
 			message: "Test message",

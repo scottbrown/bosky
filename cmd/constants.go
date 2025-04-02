@@ -1,15 +1,10 @@
 package main
 
 const (
-	EnvBeaconInstanceID string = "BEACON_INSTANCE_ID"
-	EnvBeaconProject    string = "BEACON_PROJECT"
+	EnvBeaconProject string = "BEACON_PROJECT"
 )
 
 const (
-	FlagInstanceIDLong    string = "instance-id"
-	FlagInstanceIDDesc    string = "Specifies the EC2 instance ID instead of looking it up with IMDS"
-	FlagInstanceIDDefault string = ""
-
 	FlagProjectLong    string = "project"
 	FlagProjectDesc    string = "Names the PROJECT as a source for the event"
 	FlagProjectDefault string = "unknown"

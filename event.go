@@ -13,8 +13,8 @@ import (
 // Emitter sends events to EventBridge with information about EC2 user
 // data script execution
 type Emitter struct {
-	InstanceID InstanceID
-	Project    Project
+	InstanceARN InstanceARN
+	Project     Project
 
 	EBClient   EventBridgeClient
 	IMDSClient IMDSClient
@@ -38,12 +38,12 @@ func (e Emitter) Emit(ctx context.Context, status Status, message string) error 
 	}
 
 	var resources []string
-	if e.InstanceID != "" {
-		if err := e.InstanceID.Validate(); err != nil {
+	if e.InstanceARN != "" {
+		if err := e.InstanceARN.Validate(); err != nil {
 			return err
 		}
 
-		resources = append(resources, string(e.InstanceID))
+		resources = append(resources, string(e.InstanceARN))
 	}
 
 	input := &cloudwatchevents.PutEventsInput{
