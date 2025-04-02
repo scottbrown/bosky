@@ -11,7 +11,7 @@ jobs:
       - name: install go
         uses: actions/setup-go@v5
       - name: install task
-        uses: arduino/setup-task@v1
+        uses: arduino/setup-task@v2
         with:
           version: '3.x'
       - name: run unit tests
